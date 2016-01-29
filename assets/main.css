@@ -1,0 +1,12 @@
+body {
+    text-align: center;
+    font: 16px verdana;
+    margin: 0;
+    background: #111;
+    color: #fff;
+}
+
+canvas {
+    display: block;
+    background: #222
+}
