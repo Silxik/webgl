@@ -3,28 +3,29 @@ function $(s) {
 }
 function setupProgram() {
 
-    prog = gl.createProgram();
-    gl.attachShader(prog, getShader('vs0'));
-    gl.attachShader(prog, getShader('fs0'));
-    gl.linkProgram(prog);
+    pro = gl.createProgram();
+    gl.attachShader(pro, getShader('vs0'));
+    gl.attachShader(pro, getShader('fs0'));
+    gl.linkProgram(pro);
 
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    if (!gl.getProgramParameter(pro, gl.LINK_STATUS)) {
         console.log('Unable to initialize the shader program.');
     }
 
-    gl.useProgram(prog);
+    gl.useProgram(pro);
 
-    prog.ver = gl.getAttribLocation(prog, 'aVertexPosition');
-    gl.enableVertexAttribArray(prog.ver);
+    pro.ver = gl.getAttribLocation(pro, 'aVertexPosition');
+    gl.enableVertexAttribArray(pro.ver);
 
-    prog.tex = gl.getAttribLocation(prog, 'aTextureCoord');
-    gl.enableVertexAttribArray(prog.tex);
+    pro.tex = gl.getAttribLocation(pro, 'aTextureCoord');
+    gl.enableVertexAttribArray(pro.tex);
 
-    prog.nor = gl.getAttribLocation(prog, 'aVertexNormal');
-    gl.enableVertexAttribArray(prog.nor);
+    pro.nor = gl.getAttribLocation(pro, 'aVertexNormal');
+    gl.enableVertexAttribArray(pro.nor);
 }
 
 function setupGL() {
+    can = doc.getElementById('can');
     try {
         gl = can.getContext('webgl') || can.getContext('experimental-webgl');
     } catch (e) {

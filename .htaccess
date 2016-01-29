@@ -1,0 +1,6 @@
+# Prevent access to server files
+<FilesMatch "server/main.php\.php|server/server.php\.php">
+ Order allow,deny
+ Deny from all
+ Satisfy All
+</FilesMatch>
