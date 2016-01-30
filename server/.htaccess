@@ -1,1 +1,2 @@
+#deny client access to server folder
 deny from all
