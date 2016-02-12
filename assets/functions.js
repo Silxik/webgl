@@ -1,27 +1,63 @@
+"use strict";
+function rnd() {
+    return 0.5 - Math.random();
+}
 function $(s) {
     return doc.getElementById(s);
 }
+
 function setupProgram() {
+    var i = pro.length, p;
 
-    pro = gl.createProgram();
-    gl.attachShader(pro, getShader('vs0'));
-    gl.attachShader(pro, getShader('fs0'));
-    gl.linkProgram(pro);
+    while (--i >= 0) {
+        p = gl.createProgram();
+        gl.attachShader(p, getShader('vs' + i));
+        gl.attachShader(p, getShader('fs' + i));
+        gl.linkProgram(p);
 
-    if (!gl.getProgramParameter(pro, gl.LINK_STATUS)) {
-        console.log('Unable to initialize the shader program.');
+        if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
+            console.log('Unable to link the shader program: ' + gl.getProgramInfoLog(p));
+        }
+
+        p.uRes = gl.getUniformLocation(p, "uRes");
+        p.uCam = gl.getUniformLocation(p, "uCam");
+        p.uPos = gl.getUniformLocation(p, "uPos");
+        p.uAng = gl.getUniformLocation(p, "uAng");
+
+        p.aVer = gl.getAttribLocation(p, 'aVer');
+        p.aTex = gl.getAttribLocation(p, 'aTex');
+
+        pro[i] = p;
+
     }
 
-    gl.useProgram(pro);
 
-    pro.ver = gl.getAttribLocation(pro, 'aVertexPosition');
-    gl.enableVertexAttribArray(pro.ver);
+    gl.useProgram(p);
 
-    pro.tex = gl.getAttribLocation(pro, 'aTextureCoord');
-    gl.enableVertexAttribArray(pro.tex);
+    i = meshes.length;
+    while (--i >= 0) {
+        meshes[i].setup();
+    }
+}
 
-    pro.nor = gl.getAttribLocation(pro, 'aVertexNormal');
-    gl.enableVertexAttribArray(pro.nor);
+function setupTextures() {
+    var i = pro.length, p;
+    while (--i >= 0) {
+        p = pro[i];
+        p.tex = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, p.tex);
+
+        // Send image data to graphics card
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+
+        gl.generateMipmap(gl.TEXTURE_2D);
+    }
 }
 
 function setupGL() {
@@ -64,22 +100,38 @@ function enableInput() {
 
     // Enable keyboard input detection
     win.onkeydown = win.onkeyup = function (e) {
-        var i = key.length, k = e.which;
+        var i = key.length, k = e.which, d;
         while (--i >= 0) {
             if (k == key[i]) {
-                act[i] = e.type == 'keydown' ? 1 : 0;
+                d = e.type == 'keydown';
+                act[i] = d ? 1 : 0;
+                if (k == 37 && d) cam.foc = cam.foc == 0 ? meshes.length - 1 : cam.foc - 1;
+                if (k == 39 && d) cam.foc = cam.foc == meshes.length - 1 ? 0 : cam.foc + 1;
                 break;
             }
         }
-    }
+    };
 
     // Enable window responsiveness
     win.onresize = function () {
         var w = can.width = win.innerWidth,
-            h = can.height = win.innerHeight;
+            h = can.height = win.innerHeight,
+            i = pro.length, p;
         gl.viewport(0, 0, w, h);
+
+        while (--i >= 0) {
+            p = pro[i];
+            gl.uniform2f(p.uRes, 2 / w, 2 / h);
+        }
     }
 
     // Initial resize
     win.onresize();
+}
+
+function glbuf(type, data) {
+    var b = gl.createBuffer();
+    gl.bindBuffer(type, b);
+    gl.bufferData(type, data, gl.STATIC_DRAW);
+    return b
 }
