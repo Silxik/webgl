@@ -1,6 +1,6 @@
 <?php
 require 'main.php';
-define('SERVER_BIND_HOST', getHostByName(getHostName()));
+define('SERVER_BIND_HOST', getHostByName(getHostName()));   // Change accordingly
 define('SERVER_BIND_PORT', 9300);
 set_time_limit(0);
 

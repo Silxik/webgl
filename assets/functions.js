@@ -97,6 +97,10 @@ function getShader(id) {
 }
 
 function enableInput() {
+    // Disable context menu
+    can.oncontextmenu = function (e) {
+        return false;
+    };
 
     // Enable keyboard input detection
     win.onkeydown = win.onkeyup = function (e) {
@@ -123,7 +127,7 @@ function enableInput() {
             p = pro[i];
             gl.uniform2f(p.uRes, 2 / w, 2 / h);
         }
-    }
+    };
 
     // Initial resize
     win.onresize();
@@ -134,4 +138,27 @@ function glbuf(type, data) {
     gl.bindBuffer(type, b);
     gl.bufferData(type, data, gl.STATIC_DRAW);
     return b
+}
+
+function connect(ip, port) {
+    var ws = new WebSocket('ws://' + ip + ':' + port);
+    console.log('connecting to ' + ip + ':' + port + '...');
+    ws.onopen = function () {
+        console.log('connected');
+    };
+    ws.onmessage = function (a) {
+        var d = a.data, s = d.split(' '), c = s.shift(), i;
+        if (c == 'S') {
+            console.log('Server: ' + s.join(' '));
+        } else if (c == 'J') {
+            console.log(s[0] + ' joined.');
+        } else if (c == 'Q') {
+            console.log(s[0] + ' quit.');
+        } else if (c == 'U') {
+
+        }
+    };
+    ws.onclose = function () {
+        console.log('disconnected');
+    };
 }

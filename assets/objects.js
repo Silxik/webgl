@@ -49,7 +49,7 @@ Mesh.prototype.render = function () {
 
 Mesh.prototype.physics = function () {
     this.vel[0] += act[0] - act[1];
-    //this.vel[1] += act[1] - act[3];
+    this.vel[1] += act[3] - act[2];
     this.pos[0] += this.vel[0];
     this.pos[1] += this.vel[1];
     this.ang += this.avel;

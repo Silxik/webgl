@@ -1,4 +1,6 @@
-var doc = document, win = window, can, gl, pro = [0], key = [65, 68, 87, 83, 37, 39], act = new Uint8Array(key.length),
+var doc = document, win = window, can, gl, pro = [0],
+    key = [65, 68, 87, 83, 37, 39],
+    act = new Uint8Array(key.length),
     meshes = [], img, cam = {pos: [0, 0], foc: 0};
 
 function init() {
@@ -17,6 +19,10 @@ function init() {
         setupTextures();
 
         enableInput();
+        var ip = win.prompt("insert ip to join", "127.0.0.1");
+        if (ip) {
+            connect(ip, 9300);
+        }
 
         run();
     }

@@ -32,6 +32,8 @@ $wsClientIPCount = array();
 function wsStartServer($host, $port)
 {
     global $wsRead, $wsClientCount, $wsClientIPCount;
+
+    echo "Starting server on $host : $port\n";
     if (isset($wsRead[0])) return false;
 
     if (!$wsRead[0] = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)) {
@@ -48,6 +50,15 @@ function wsStartServer($host, $port)
     if (!socket_listen($wsRead[0], 10)) {
         socket_close($wsRead[0]);
         return false;
+    }
+    echo "Server running\n";
+
+    $portTest = @fsockopen($host, $port);
+    if (is_resource($portTest)) {
+        echo 'port ' . $port . ' is open';
+        fclose($portTest);
+    } else {
+        echo 'port ' . $port . ' is not forwarded';
     }
 
     $write = array();
