@@ -6,9 +6,17 @@ function $(s) {
     return doc.getElementById(s);
 }
 
-function setupProgram() {
-    var i = pro.length, p;
+function getLocations(program, type) {
+    var i = gl.getProgramParameter(program, type ? gl.ACTIVE_UNIFORMS : gl.ACTIVE_ATTRIBUTES), u;
+    while (--i >= 0) {
+        u = type ? gl.getActiveUniform(program, i) : gl.getActiveAttrib(program, i);
+        program[u.name] = type ? gl.getUniformLocation(program, u.name) : gl.getAttribLocation(program, u.name);
+    }
+}
 
+function setupPrograms() {
+    var i = pro, p;
+    pro = [];
     while (--i >= 0) {
         p = gl.createProgram();
         gl.attachShader(p, getShader('vs' + i));
@@ -18,21 +26,12 @@ function setupProgram() {
         if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
             console.log('Unable to link the shader program: ' + gl.getProgramInfoLog(p));
         }
+        getLocations(p, 1);
+        getLocations(p, 0);
 
-        p.uRes = gl.getUniformLocation(p, "uRes");
-        p.uCam = gl.getUniformLocation(p, "uCam");
-        p.uPos = gl.getUniformLocation(p, "uPos");
-        p.uAng = gl.getUniformLocation(p, "uAng");
-
-        p.aVer = gl.getAttribLocation(p, 'aVer');
-        p.aTex = gl.getAttribLocation(p, 'aTex');
-
+        p.meshes = [];
         pro[i] = p;
-
     }
-
-
-    gl.useProgram(p);
 
     i = meshes.length;
     while (--i >= 0) {
@@ -41,20 +40,18 @@ function setupProgram() {
 }
 
 function setupTextures() {
-    var i = pro.length, p;
+    var i = img.length, t;
     while (--i >= 0) {
-        p = pro[i];
-        p.tex = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, p.tex);
-
-        // Send image data to graphics card
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        tex[i] = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, tex[i]);
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
+        // Send image data to graphics card
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img[i]);
 
         gl.generateMipmap(gl.TEXTURE_2D);
     }
@@ -125,6 +122,7 @@ function enableInput() {
 
         while (--i >= 0) {
             p = pro[i];
+            gl.useProgram(p);
             gl.uniform2f(p.uRes, 2 / w, 2 / h);
         }
     };
@@ -162,3 +160,4 @@ function connect(ip, port) {
         console.log('disconnected');
     };
 }
+

@@ -49,11 +49,14 @@ void main(void) {
     <script id="fs1" type="fs">
 precision mediump float;
 
-const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);
+varying vec2 vTex;
+
+uniform sampler2D uImg;
 
 void main(void) {
-    gl_FragColor = white;
+    gl_FragColor = texture2D(uImg, vTex);
 }
+
 
     </script>
     <script id="vs1" type="vs">
@@ -62,6 +65,9 @@ precision mediump float;
 const float PI = 3.14159265358979323846264;
 const float D2R = PI / 180.0;
 
+varying vec2 vTex;
+
+attribute vec2 aTex;
 attribute vec2 aVer;
 
 uniform vec2 uRes;
@@ -75,9 +81,8 @@ void main(void) {
     float as = sin(rad);
     mat2 rot = mat2(ac, -as, -as, -ac); // Create rotation matrix
     gl_Position = vec4((aVer * rot + uPos - uCam) * uRes, 1.0, 1.0);
+    vTex = aTex;
 }
-
-
     </script>
     <script src="assets/functions.js"></script>
     <script src="assets/objects.js"></script>
