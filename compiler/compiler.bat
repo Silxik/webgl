@@ -1,8 +1,11 @@
 ::java -jar compiler.jar --help
 ::SIMPLE/ADVANCED_OPTIMIZATIONS QUIET/VERBOSE
-SET p=..\assets\
-SET f=%p%out
-copy /B %p%functions.js+%p%objects.js+%p%main.js  %f%.js
-java -jar compiler.jar --compilation_level=ADVANCED_OPTIMIZATIONS --warning_level=VERBOSE --js=%f%.js --js_output_file=%f%-min.js
-del %f%.js
+SET i=..\assets\
+SET o=..\bin\
+copy /B ..\favicon.ico  %o%favicon.ico
+xcopy ..\img %o%img /s/y
+java -jar yui.jar %i%main.css -o %o%min.css --charset utf-8
+copy /B %i%functions.js+%i%objects.js+%i%main.js  %o%max.js
+java -jar closure.jar --compilation_level=ADVANCED_OPTIMIZATIONS --warning_level=VERBOSE --js=%o%max.js --js_output_file=%o%min.js
+del %o%max.js
 pause

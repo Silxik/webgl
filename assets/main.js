@@ -35,7 +35,7 @@ function init() {
     while (--i >= 0) {
         img[i] = new Image();
         img[i].id = i;
-        img[i].src = "assets/img/" + i + ".jpg";
+        img[i].src = "img/" + i + ".jpg";
         img[i].onload = loadedCheck;
     }
 }
