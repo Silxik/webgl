@@ -1,10 +1,9 @@
-var doc = document, win = window, can, gl, pro = 2,
-    key = [65, 68, 87, 83, 37, 39],
-    act = new Uint8Array(key.length),
-    meshes = [], img = 2, tex = [], cam = {pos: [0, 0], foc: 0};
+var doc = document, win = window, can, gl, pro = 1,
+    key = [65, 68, 87, 83, 37, 39], act = new Uint8Array(key.length),
+    meshes = [], texts = [], img = 2, tex = [], cam = {pos: [0, 0], foc: 0};
 
-function loadedCheck() {
-    this.loaded = 1;
+function loadedCheck(e) {
+    e.target.loaded = 1;
     var i = img.length;
     while (--i >= 0) {
         if (!img[i].loaded) return;
@@ -29,7 +28,6 @@ function init() {
     while (--i >= 0) {
         meshes[i] = new Mesh();
     }
-    meshes[1].pro = [1];
     meshes[1].texUnits = [1];
 
     i = img;
@@ -66,11 +64,11 @@ function run() {
             p = pro[i];
             gl.useProgram(p);
             j = p.meshes.length;
-            if (j > 0) gl.uniform2fv(p.uCam, cam.pos);
+            if (j > 0) gl.uniform2fv(p['uCam'], cam.pos);
             while (--j >= 0) {
                 m = p.meshes[j];
-                gl.uniform2fv(p.uPos, m.pos);
-                gl.uniform1f(p.uAng, m.ang);
+                gl.uniform2fv(p['uPos'], m.pos);
+                gl.uniform1f(p['uAng'], m.ang);
                 // Define which texture we will render with
                 k = m.texUnits.length;
                 while (--k >= 0) {

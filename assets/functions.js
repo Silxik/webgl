@@ -15,12 +15,14 @@ function getLocations(program, type) {
 }
 
 function setupPrograms() {
-    var i = pro, p;
+    var i = pro, i2, p, sha = [new Shader(0).mesh(), new Shader(1).mesh()];
     pro = [];
+
     while (--i >= 0) {
         p = gl.createProgram();
-        gl.attachShader(p, getShader('vs' + i));
-        gl.attachShader(p, getShader('fs' + i));
+        i2 = i * 2;
+        gl.attachShader(p, sha[i2]);
+        gl.attachShader(p, sha[i2 + 1]);
         gl.linkProgram(p);
 
         if (!gl.getProgramParameter(p, gl.LINK_STATUS)) {
@@ -81,18 +83,6 @@ function setupGL() {
     return true;
 }
 
-function getShader(id) {
-    var src = $(id),
-        sha = gl.createShader(src.type == 'fs' ? gl.FRAGMENT_SHADER : gl.VERTEX_SHADER);
-    gl.shaderSource(sha, src.textContent);
-    gl.compileShader(sha);
-    if (!gl.getShaderParameter(sha, gl.COMPILE_STATUS)) {
-        console.log('Shader compile error: ' + gl.getShaderInfoLog(sha));
-        return false;
-    }
-    return sha;
-}
-
 function enableInput() {
     // Disable context menu
     can.oncontextmenu = function (e) {
@@ -123,7 +113,7 @@ function enableInput() {
         while (--i >= 0) {
             p = pro[i];
             gl.useProgram(p);
-            gl.uniform2f(p.uRes, 2 / w, 2 / h);
+            gl.uniform2f(p['uRes'], 2 / w, 2 / h);
         }
     };
 
@@ -153,7 +143,7 @@ function connect(ip, port) {
         } else if (c == 'Q') {
             console.log(s[0] + ' quit.');
         } else if (c == 'U') {
-
+            console.log(s[0] + ' U.');
         }
     };
     ws.onclose = function () {
