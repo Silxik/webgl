@@ -54,6 +54,10 @@ Shader.prototype.compile = function () {
     return s;
 };
 
+function Player(sid) {
+    this.id = sid;
+    this.mesh = new Mesh().setup();
+}
 
 /**
  * Random mesh.
@@ -65,6 +69,7 @@ function Mesh() {
     this.ang = 0;
     this.avel = rnd();
     this.tver = [];
+    meshes.push(this);
 }
 
 Mesh.prototype.pro = [0];
@@ -96,17 +101,7 @@ Mesh.prototype.setup = function () {
 
         gl.uniform1i(p['uImg'], 0);
     }
-};
-
-Mesh.prototype.render = function () {
-    var i = pro.length, p;
-    while (--i >= 0) {
-        p = pro[i];
-        gl.uniform2fv(p['uPos'], this.pos);
-        gl.uniform1f(p['uAng'], this.ang);
-        //gl.drawArrays(gl.LINES, 0, 6);
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-    }
+    return this;
 };
 
 Mesh.prototype.physics = function () {

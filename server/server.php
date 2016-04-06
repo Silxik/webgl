@@ -77,6 +77,7 @@ function addUser($clientID, $username)
     }
     wsSend($clientID, 'U ' . implode(' ', $usernames));
     $users[$clientID] = $username;
+    echo "($clientID)$username joined.\n";
 }
 
 function removeUser($clientID)
@@ -87,6 +88,7 @@ function removeUser($clientID)
     foreach ($users as $clientID2 => $username2) {
         wsSend($clientID2, 'Q ' . $username);
     }
+    echo "($clientID)$username left.\n";
 }
 
 function nameTaken($username)

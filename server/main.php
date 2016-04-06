@@ -51,14 +51,14 @@ function wsStartServer($host, $port)
         socket_close($wsRead[0]);
         return false;
     }
-    echo "Server running\n";
+    echo "Server running.\n";
 
     $portTest = @fsockopen($host, $port);
     if (is_resource($portTest)) {
-        echo 'port ' . $port . ' is open';
+        echo "port $port is open.\n";
         fclose($portTest);
     } else {
-        echo 'port ' . $port . ' is not forwarded';
+        echo "port $port is not forwarded.\n";
     }
 
     $write = array();
@@ -98,8 +98,8 @@ function wsStartServer($host, $port)
                         // fetch client IP as integer
                         $clientIP = '';
                         $result = socket_getpeername($client, $clientIP);
+                        echo "$clientIP(" . wsGetNextClientID() . ") connected.\n";
                         $clientIP = ip2long($clientIP);
-
                         if ($result !== false && $wsClientCount < WS_MAX_CLIENTS && (!isset($wsClientIPCount[$clientIP]) || $wsClientIPCount[$clientIP] < WS_MAX_CLIENTS_PER_IP)) {
                             wsAddClient($client, $clientIP);
                         } else {

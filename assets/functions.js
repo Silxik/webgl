@@ -34,11 +34,6 @@ function setupPrograms() {
         p.meshes = [];
         pro[i] = p;
     }
-
-    i = meshes.length;
-    while (--i >= 0) {
-        meshes[i].setup();
-    }
 }
 
 function setupTextures() {
@@ -67,7 +62,7 @@ function setupGL() {
         console.log('Error getting WebGL context:', e);
     }
     if (!gl) {
-        console.log('Unable to initialize WebGL');
+        alert('Unable to initialize WebGL');
         return false;
     }
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
@@ -129,25 +124,60 @@ function glbuf(type, data) {
 }
 
 function connect(ip, port) {
-    var ws = new WebSocket('ws://' + ip + ':' + port);
-    console.log('connecting to ' + ip + ':' + port + '...');
+    ws = new WebSocket('ws://' + ip + ':' + port);
+    console.log('Connecting to ' + ip + ':' + port + '...');
     ws.onopen = function () {
-        console.log('connected');
+        var sid = (Math.random() * 10000 << 0) + '';
+        console.log('Connected');
+        pls.push(new Player(sid));
+        ws.send('J ' + sid);
     };
     ws.onmessage = function (a) {
-        var d = a.data, s = d.split(' '), c = s.shift(), i;
+        var d = a.data, s = d.split(' '), c = s.shift(), i = s.length;
         if (c == 'S') {
             console.log('Server: ' + s.join(' '));
         } else if (c == 'J') {
-            console.log(s[0] + ' joined.');
+            console.log(s[0], ' joined.');
+            pls.push(new Player(s[0]));
         } else if (c == 'Q') {
             console.log(s[0] + ' quit.');
+            removePlayer(s[0]);
         } else if (c == 'U') {
-            console.log(s[0] + ' U.');
+            if (s[0] == '') return;
+            while (--i >= 0) {
+                pls.push(new Player(s[i]));
+            }
         }
     };
     ws.onclose = function () {
-        console.log('disconnected');
+        console.log('Disconnected');
     };
 }
 
+function removePlayer(sid) {
+    var i = pls.length, j, mid, msh, pm, pid;
+    while (--i >= 0) {
+        if (pls[i].id == sid) {
+            msh = pls[i].mesh;
+            mid = meshes.indexOf(msh);
+            j = msh.pro.length;
+            while (--j >= 0) {  // Delete from programs
+                pm = pro[msh.pro[j]].meshes;
+                pid = pm.indexOf(msh);
+                if (pid >= 0) {     // Program contains mesh
+                    safeRemove(pm, pid);
+                }
+            }
+            safeRemove(meshes, mid);    // Delete from mesh list
+            pls.splice(i, 1);   // Remove from players list
+        }
+    }
+}
+
+function safeRemove(arr, ind) {
+    var l = arr.length - 1;
+    if (ind != l) {  // Not the last element in the list
+        arr[ind] = arr[l];    // Replace with last element
+    }
+    arr.pop();   // Remove last
+}

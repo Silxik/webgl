@@ -1,5 +1,5 @@
-var doc = document, win = window, can, gl, pro = 1,
-    key = [65, 68, 87, 83, 37, 39], act = new Uint8Array(key.length),
+var doc = document, win = window, can, gl, pro = 1, ws, pls = [],
+    key = [65, 68, 87, 83, 37, 39], act = new Uint8Array(key.length), 
     meshes = [], texts = [], img = 2, tex = [], cam = {pos: [0, 0], foc: 0};
 
 function loadedCheck(e) {
@@ -25,10 +25,6 @@ function loadedCheck(e) {
 
 function init() {
     var i = 3;
-    while (--i >= 0) {
-        meshes[i] = new Mesh();
-    }
-    meshes[1].texUnits = [1];
 
     i = img;
     img = [];
@@ -47,35 +43,39 @@ function run() {
     if (doc.hasFocus()) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // Position camera
-        cam.pos = meshes[cam.foc].pos;
-        // Apply user interaction
-        meshes[cam.foc].control();
-
-        // Apply physics to meshes
         i = meshes.length;
-        while (--i >= 0) {
-            meshes[i].physics();
-        }
+        if (i) {
+            // Position camera
+            cam.pos = meshes[cam.foc].pos;
+            // Apply user interaction
+            meshes[cam.foc].control();
 
-        // Render programs
-        i = pro.length;
-        while (--i >= 0) {
-            p = pro[i];
-            gl.useProgram(p);
-            j = p.meshes.length;
-            if (j > 0) gl.uniform2fv(p['uCam'], cam.pos);
-            while (--j >= 0) {
-                m = p.meshes[j];
-                gl.uniform2fv(p['uPos'], m.pos);
-                gl.uniform1f(p['uAng'], m.ang);
-                // Define which texture we will render with
-                k = m.texUnits.length;
-                while (--k >= 0) {
-                    gl.activeTexture(gl.TEXTURE0 + k);
-                    gl.bindTexture(gl.TEXTURE_2D, tex[m.texUnits[k]]);
+            // Apply physics to meshes
+            while (--i >= 0) {
+                meshes[i].physics();
+            }
+
+            // Render programs
+            i = pro.length;
+            while (--i >= 0) {
+                p = pro[i];
+                gl.useProgram(p);
+                j = p.meshes.length;
+                if (j) {
+                    gl.uniform2fv(p['uCam'], cam.pos);
+                    while (--j >= 0) {
+                        m = p.meshes[j];
+                        gl.uniform2fv(p['uPos'], m.pos);
+                        gl.uniform1f(p['uAng'], m.ang);
+                        // Set texture for rendering
+                        k = m.texUnits.length;
+                        while (--k >= 0) {
+                            gl.activeTexture(gl.TEXTURE0 + k);
+                            gl.bindTexture(gl.TEXTURE_2D, tex[m.texUnits[k]]);
+                        }
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+                    }
                 }
-                gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
         }
     }
