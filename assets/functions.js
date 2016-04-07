@@ -127,7 +127,7 @@ function enableInput() {
     win.onmouseup = function (e) {
         mou[e.which] = 0;
     };
-    
+
 
     // Initial resize
     win.onresize();
@@ -148,18 +148,15 @@ function connect(ip, port) {
         console.log('Connected');
         pls.push(new Player(sid));
         ws.send('J ' + sid);
-<<<<<<< HEAD
         var bg = new Mesh().setup();
         bg.pos = [0, 0];
         bg.vel = [0, 0];
         bg.avel = 0;
         tex.push(drawBG(gl, "simplex", 256, 256, "#fff000", "#0000ff")); //background noise
         bg.texUnits = [tex.length-1];
-=======
         enableInput();
         run();
         ws.connected = true;
->>>>>>> origin/master
     };
     ws.onmessage = function (a) {
         var d = a.data, s = d.split(' '), c = s.shift(), i, j, l = s.length, m;
