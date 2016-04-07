@@ -4,48 +4,58 @@ define('SERVER_BIND_HOST', getHostByName(getHostName()));   // Change accordingl
 define('SERVER_BIND_PORT', 9300);
 set_time_limit(0);
 
-$users = array();
-$scores = array();
+$users = [];
+
 function wsOnMessage($clientID, $message, $messageLength, $binary)
 {
     global $users;
-    if ($messageLength == 0) {
-        wsClose($clientID);
-        return;
-    }
     $message = explode(' ', $message);
     $command = array_shift($message);
-    if ($command == 'T') {
-        if (!isUser($clientID)) {
-            wsClose($clientID);
-            return;
-        }
-        $text = implode(' ', $message);
-        if ($text == '') {
-            wsSend($clientID, 'S Message was blank.');
-            return;
-        }
-        sendText($users[$clientID], $text);
-    } elseif ($command == 'J') {
+    if ($command == 'J') {
         if (isUser($clientID)) {
             wsClose($clientID);
             return;
         }
-        $username = trim($message[0]);
-        if ($username == '') {
+        $name = trim($message[0]);
+        if ($name == '') {
             wsClose($clientID);
             return;
         }
-        if (nameTaken($username)) {
+        if (nameTaken($name)) {
             wsClose($clientID);
             return;
         }
-        addUser($clientID, $username);
+        addUser($clientID, $name);
+    } else if ($messageLength == 0 || !isUser($clientID)) {
+        wsClose($clientID);
+        return;
+    } else if ($command == 'D') {
+        $c = $users[$clientID];
+        // Update client parameters
+        $c->ang = $message[0];
+        $c->pos[0] = $message[1];
+        $c->pos[1] = $message[2];
+        $c->vel[0] = $message[3];
+        $c->vel[2] = $message[4];
+        // Let other clients know that new data is available
+        foreach ($users as $userID => $data) {
+            if ($userID != $clientID) {
+                $users[$userID]->queue[$clientID] = 1;
+            }
+        }
+        $data = '';
+        // Send updates back to the client
+        foreach ($c->queue as $userID => $one) {
+            $u = $users[$userID];
+            $data .= ' ' . $u->name . ' ' .
+                $u->ang . ' ' .
+                $u->pos[0] . ' ' . $u->pos[1] . ' ' .
+                $u->vel[0] . ' ' . $u->vel[1];
+        }
+
+        wsSend($clientID, 'D' . $data);
+
     } elseif ($command == 'Q') {
-        if (!isUser($clientID)) {
-            wsClose($clientID);
-            return;
-        }
         removeUser($clientID);
     } else {
         wsClose($clientID);
@@ -65,47 +75,45 @@ function isUser($clientID)
     return isset($users[$clientID]);
 }
 
-function addUser($clientID, $username)
+function addUser($clientID, $name)
 {
     global $users;
-    foreach ($users as $clientID2 => $username2) {
-        wsSend($clientID2, 'J ' . $username);
+    foreach ($users as $userID => $data) {
+        wsSend($userID, 'J ' . $name);
     }
-    $usernames = array();
-    foreach ($users as $username2) {
-        $usernames[] = $username2;
+    $names = [];
+    foreach ($users as $data) {
+        $names[] = $data->name;
     }
-    wsSend($clientID, 'U ' . implode(' ', $usernames));
-    $users[$clientID] = $username;
-    echo "($clientID)$username joined.\n";
+    wsSend($clientID, 'U ' . implode(' ', $names));
+    $users[$clientID] = (object)[
+        'queue' => [],
+        'name' => $name,
+        'ang' => 0,
+        'pos' => [0, 0],
+        'vel' => [0, 0]
+    ];
+    echo "($clientID)$name joined.\n";
 }
 
 function removeUser($clientID)
 {
     global $users;
-    $username = $users[$clientID];
+    $name = $users[$clientID]->name;
     unset($users[$clientID]);
-    foreach ($users as $clientID2 => $username2) {
-        wsSend($clientID2, 'Q ' . $username);
+    foreach ($users as $userID => $data) {
+        wsSend($userID, 'Q ' . $name);
     }
-    echo "($clientID)$username left.\n";
+    echo "($clientID)$name left.\n";
 }
 
-function nameTaken($username)
+function nameTaken($name)
 {
     global $users;
-    foreach ($users as $username2) {
-        if ($username === $username2) return true;
+    foreach ($users as $data) {
+        if ($name === $data->name) return true;
     }
     return false;
-}
-
-function sendText($username, $text)
-{
-    global $users;
-    foreach ($users as $clientID => $user) {
-        wsSend($clientID, 'T ' . $username . ' ' . $text);
-    }
 }
 
 wsStartServer(SERVER_BIND_HOST, SERVER_BIND_PORT);

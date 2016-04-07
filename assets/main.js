@@ -1,6 +1,7 @@
-var doc = document, win = window, can, gl, pro = 1, ws, pls = [],
-    key = [65, 68, 87, 83, 37, 39], act = new Uint8Array(key.length), 
-    meshes = [], texts = [], img = 2, tex = [], cam = {pos: [0, 0], foc: 0};
+var doc = document, win = window, can, gl, pro = 1, ws, pls = [], rng = rnumgen(),
+    key = [65, 68, 87, 83, 37, 39], act = new Uint8Array(key.length), mou = [0, 0, 0],
+    meshes = [], texts = [], img = 3, tex = [], cam = {pos: [0, 0], foc: 0, cur: [0, 0]},
+    R2D = 180 / Math.PI, D2R = Math.PI / 180;
 
 function loadedCheck(e) {
     e.target.loaded = 1;
@@ -14,19 +15,15 @@ function loadedCheck(e) {
 
     setupTextures();
 
-    enableInput();
-    var ip = win.prompt("insert ip to join", "192.168.1.");
+    var ip = win.prompt("insert ip to join", "192.168.1.66");
     if (ip) {
         connect(ip, 9300);
     }
 
-    run();
 }
 
 function init() {
-    var i = 3;
-
-    i = img;
+    var i = img;
     img = [];
     while (--i >= 0) {
         img[i] = new Image();
@@ -38,7 +35,6 @@ function init() {
 
 function run() {
     var i, j, k, m, p;
-
     // Only render when document has focus
     if (doc.hasFocus()) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -54,6 +50,12 @@ function run() {
             while (--i >= 0) {
                 meshes[i].physics();
             }
+            if (ws.connected) {
+                ws.send('D ' + meshes[0].ang + ' ' +
+                    meshes[0].pos[0] + ' ' + meshes[0].pos[1] + ' ' +
+                    meshes[0].vel[0] + ' ' + meshes[0].vel[1]);
+
+            }
 
             // Render programs
             i = pro.length;
@@ -67,6 +69,7 @@ function run() {
                         m = p.meshes[j];
                         gl.uniform2fv(p['uPos'], m.pos);
                         gl.uniform1f(p['uAng'], m.ang);
+                        gl.uniform3fv(p['uCol'], m.col);
                         // Set texture for rendering
                         k = m.texUnits.length;
                         while (--k >= 0) {
