@@ -65,7 +65,6 @@ function setupGL() {
         alert('Unable to initialize WebGL');
         return false;
     }
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
     gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
@@ -131,6 +130,12 @@ function connect(ip, port) {
         console.log('Connected');
         pls.push(new Player(sid));
         ws.send('J ' + sid);
+        var bg = new Mesh().setup();
+        bg.pos = [0, 0];
+        bg.vel = [0, 0];
+        bg.avel = 0;
+        tex.push(drawBG(gl, "simplex", 256, 256, "#fff000", "#0000ff")); //background noise
+        bg.texUnits = [tex.length-1];
     };
     ws.onmessage = function (a) {
         var d = a.data, s = d.split(' '), c = s.shift(), i = s.length;
@@ -181,3 +186,4 @@ function safeRemove(arr, ind) {
     }
     arr.pop();   // Remove last
 }
+
