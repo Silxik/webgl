@@ -15,8 +15,7 @@ function loadedCheck(e) {
 
     setupTextures();
 
-    enableInput();
-    var ip = win.prompt("insert ip to join", "192.168.1.");
+    var ip = win.prompt("insert ip to join", "192.168.1.66");
     if (ip) {
         connect(ip, 9300);
     }
@@ -50,6 +49,12 @@ function run() {
             // Apply physics to meshes
             while (--i >= 0) {
                 meshes[i].physics();
+            }
+            if (ws.connected) {
+                ws.send('D ' + meshes[0].ang + ' ' +
+                    meshes[0].pos[0] + ' ' + meshes[0].pos[1] + ' ' +
+                    meshes[0].vel[0] + ' ' + meshes[0].vel[1]);
+
             }
 
             // Render programs

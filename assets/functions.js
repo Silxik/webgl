@@ -151,13 +151,27 @@ function connect(ip, port) {
         ws.send('J ' + sid);
         enableInput();
         run();
+        ws.connected = true;
     };
     ws.onmessage = function (a) {
-        var d = a.data, s = d.split(' '), c = s.shift(), i = s.length;
+        var d = a.data, s = d.split(' '), c = s.shift(), i, j, l = s.length, m;
         if (c == 'S') {
             console.log('Server: ' + s.join(' '));
         } else if (c == 'D') {
-            console.log(s, ' data');
+            j = pls.length;
+            for (i = 0; i < l; i += 6) {    // Every iteration is a new player
+                while (--j >= 0) {
+                    if (pls[j].sid == s[i]) {
+                        m = pls[j].mesh;
+                        m.ang = parseFloat(s[i + 1]);
+                        m.pos[0] = parseFloat(s[i + 2]);
+                        m.pos[1] = parseFloat(s[i + 3]);
+                        m.vel[0] = parseFloat(s[i + 4]);
+                        m.vel[1] = parseFloat(s[i + 5]);
+                        break;
+                    }
+                }
+            }
         } else if (c == 'J') {
             console.log(s[0], ' joined.');
             pls.push(new Player(s[0]));
@@ -166,12 +180,13 @@ function connect(ip, port) {
             removePlayer(s[0]);
         } else if (c == 'U') {
             if (s[0] == '') return;
-            while (--i >= 0) {
-                pls.push(new Player(s[i]));
+            while (--l >= 0) {
+                pls.push(new Player(s[l]));
             }
         }
     };
     ws.onclose = function () {
+        ws.connected = false;
         console.log('Disconnected');
     };
 }
