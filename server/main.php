@@ -98,7 +98,7 @@ function wsStartServer($host, $port)
                         // fetch client IP as integer
                         $clientIP = '';
                         $result = socket_getpeername($client, $clientIP);
-                        echo "$clientIP(" . wsGetNextClientID() . ") connected.\n";
+                        echo "(" . wsGetNextClientID() . ")$clientIP connected.\n";
                         $clientIP = ip2long($clientIP);
                         if ($result !== false && $wsClientCount < WS_MAX_CLIENTS && (!isset($wsClientIPCount[$clientIP]) || $wsClientIPCount[$clientIP] < WS_MAX_CLIENTS_PER_IP)) {
                             wsAddClient($client, $clientIP);

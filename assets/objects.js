@@ -9,7 +9,7 @@ function Shader(type) {
 
 Shader.prototype.add = function (node, type, arr) {
     var ns = ['precision', 'const', 'varying', 'attribute', 'uniform', ''],
-        ts = ['', 'vec2', 'float', 'mat2', 'sampler2D'], i = 0;
+        ts = ['', 'vec2', 'float', 'mat2', 'sampler2D', 'vec3'], i = 0;
     for (; i < arr.length; i++) {
         this.nodes[node].push(ns[node] + ' ' + ts[type] + ' ' + arr[i] + ';');
     }
@@ -30,7 +30,8 @@ Shader.prototype.mesh = function () {
     t.add(2, 1, ['vTex']);
     if (t.type) {
         t.add(4, 4, ['uImg']);
-        t.add(5, 0, ['gl_FragColor = texture2D(uImg, vTex)']);
+        t.add(4, 5, ['uCol']);
+        t.add(5, 0, ['gl_FragColor = texture2D(uImg, vTex) * vec4(uCol, 1)']);
     } else {
         t.add(1, 2, ['PI = 3.14159265358979323846264', 'D2R = PI / 180.0']);
         t.add(3, 1, ['aTex', 'aVer']);
@@ -54,19 +55,27 @@ Shader.prototype.compile = function () {
     return s;
 };
 
+/**
+ * Player constructor
+ * @constructor
+ */
 function Player(sid) {
-    this.id = sid;
-    this.mesh = new Mesh().setup();
+    this.sid = sid;
+    rng.set(sid);
+    var color = new Float32Array([0.1 + 0.9 * rng.get(), 0.1 + 0.9 * rng.get(), 0.1 + 0.9 * rng.get()]);
+    this.mesh = new Mesh(color).setup();
+    this.mesh.texUnits = [sid % 3];
 }
 
 /**
  * Random mesh.
  * @constructor
  */
-function Mesh() {
+function Mesh(color) {
     this.pos = [rnd() * 1000, rnd() * 360];
-    this.vel = [rnd(), rnd()];
+    this.vel = [rnd() * 10, rnd() * 10];
     this.ang = 0;
+    this.col = color || new Float32Array([1, 1, 1]);
     this.avel = rnd();
     this.tver = [];
     meshes.push(this);
@@ -107,10 +116,34 @@ Mesh.prototype.setup = function () {
 Mesh.prototype.physics = function () {
     this.pos[0] += this.vel[0] / 60;
     this.pos[1] += this.vel[1] / 60;
-    this.ang += this.avel;
 };
 
 Mesh.prototype.control = function () {
     this.vel[0] += act[1] - act[0];
     this.vel[1] += act[2] - act[3];
+    if (mou[3]) {
+        this.vel[0] -= Math.sin(this.ang * D2R) * 5;
+        this.vel[1] -= Math.cos(this.ang * D2R) * 5;
+    }
 };
+
+function rnumgen(n) {
+    /*
+     A seedable random number generator
+     ~ 5 times slower than Math.random()
+
+     s{integer}[optional] seed
+     returns {object} the rng object
+     */
+    var i = 2147483647, s = n || Math.random();
+    return {
+        set: function (a) {
+            s = a;
+            this.get();
+        },
+        get: function () {
+            s = s * 16807 % i;
+            return s / i;
+        }
+    }
+}

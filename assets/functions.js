@@ -112,6 +112,24 @@ function enableInput() {
         }
     };
 
+    win.onmousedown = function (e) {
+        mou[e.which] = 1;
+    };
+
+    win.onmousemove = function (e) {
+        var dx = e.clientX - cam.cur[0], dy = e.clientY - cam.cur[1];
+
+        cam.cur[0] += dx;
+        cam.cur[1] += dy;
+
+        meshes[0].ang = -R2D * Math.atan2(cam.cur[0] - can.width / 2, cam.cur[1] - can.height / 2);
+
+    };
+    win.onmouseup = function (e) {
+        mou[e.which] = 0;
+    };
+    
+
     // Initial resize
     win.onresize();
 }
@@ -131,11 +149,15 @@ function connect(ip, port) {
         console.log('Connected');
         pls.push(new Player(sid));
         ws.send('J ' + sid);
+        enableInput();
+        run();
     };
     ws.onmessage = function (a) {
         var d = a.data, s = d.split(' '), c = s.shift(), i = s.length;
         if (c == 'S') {
             console.log('Server: ' + s.join(' '));
+        } else if (c == 'D') {
+            console.log(s, ' data');
         } else if (c == 'J') {
             console.log(s[0], ' joined.');
             pls.push(new Player(s[0]));
@@ -157,7 +179,7 @@ function connect(ip, port) {
 function removePlayer(sid) {
     var i = pls.length, j, mid, msh, pm, pid;
     while (--i >= 0) {
-        if (pls[i].id == sid) {
+        if (pls[i].sid == sid) {
             msh = pls[i].mesh;
             mid = meshes.indexOf(msh);
             j = msh.pro.length;
