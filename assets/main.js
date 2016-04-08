@@ -15,9 +15,9 @@ function loadedCheck(e) {
 
     setupTextures();
 
-    var ip = win.prompt("insert ip to join", "192.168.1.66");
-    if (ip) {
-        connect(ip, 9300);
+    var ip = new GetIP();
+    ip.onready = function() {
+        connect(this.ip, 9300);
     }
 
 }

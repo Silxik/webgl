@@ -224,3 +224,25 @@ function safeRemove(arr, ind) {
     arr.pop();   // Remove last
 }
 
+function GetIP(){
+    var rtc, pc, noop = function() {}, that = this, local;
+    this.onready = function() {};
+    this.ip = null;
+    if (window.location.href.indexOf('localhost') >= 0) {
+        local = true;
+    }
+    rtc = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;   //compatibility for firefox and chrome
+    pc = new rtc({iceServers:[]});
+    pc.createDataChannel("");    //create a bogus data channel
+    pc.createOffer(pc.setLocalDescription.bind(pc), noop);    // create offer and set local description
+    pc.onicecandidate = function(ice){  //listen for candidate events
+        if(!ice || !ice.candidate || !ice.candidate.candidate)  return;
+        pc.onicecandidate = noop;
+        if (local==true){
+            that.ip = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/.exec(ice.candidate.candidate)[1];
+        }else{
+            that.ip = win.prompt("Insert ip to join:", "");
+        }
+        that.onready();
+    };
+}
