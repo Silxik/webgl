@@ -16,7 +16,7 @@ function drawBG(gl,type,texW, texH, hex1, hex2){
         gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,texW,texH,0,gl.RGBA,gl.UNSIGNED_BYTE,data);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        console.log(data);
+//         console.log(data);
         return image;
     }
 

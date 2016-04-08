@@ -15,7 +15,7 @@ function getLocations(program, type) {
 }
 
 function setupPrograms() {
-    var i = pro, i2, p, sha = [new Shader(0).mesh(), new Shader(1).mesh()];
+    var i = pro, i2, p, sha = [new Shader(0).mesh(), new Shader(1).mesh(), new Shader(0).bg(), new Shader(1).bg()];
     pro = [];
 
     while (--i >= 0) {
@@ -121,7 +121,7 @@ function enableInput() {
         cam.cur[0] += dx;
         cam.cur[1] += dy;
 
-        meshes[0].ang = -R2D * Math.atan2(cam.cur[0] - can.width / 2, cam.cur[1] - can.height / 2);
+        meshes[0].ang = -R2D * (Math.atan2(can.width / 2 - cam.cur[0], can.height / 2 - cam.cur[1]));
 
     };
     win.onmouseup = function (e) {
@@ -148,11 +148,17 @@ function connect(ip, port) {
         console.log('Connected');
         pls.push(new Player(sid));
         ws.send('J ' + sid);
-        var bg = new Mesh().setup();
+        var bg = new Mesh();
+        bg.pro = [1];
         bg.pos = [0, 0];
         bg.vel = [0, 0];
+        bg.ver = new Float32Array([
+            -1.0, -1.0, 1.0, -1.0, 1.0, 1.0,
+            1.0, 1.0, -1.0, 1.0, -1.0, -1.0
+        ]);
         bg.avel = 0;
-        tex.push(drawBG(gl, "simplex", 256, 256, "#fff000", "#0000ff")); //background noise
+        bg.setup();
+        tex.push(drawBG(gl, "simplex", 1024, 1024, "#fff000", "#0000ff")); //background noise
         bg.texUnits = [tex.length-1];
         enableInput();
         run();

@@ -103,6 +103,7 @@ function removeUser($clientID)
     unset($users[$clientID]);
     foreach ($users as $userID => $data) {
         wsSend($userID, 'Q ' . $name);
+        unset($users[$userID]->queue[$clientID]);
     }
     echo "($clientID)$name left.\n";
 }

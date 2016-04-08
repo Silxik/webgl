@@ -24,6 +24,22 @@ Shader.prototype.toStr = function () {
     return o.join('') + '}';
 };
 
+Shader.prototype.bg = function () {
+    var t = this;
+    t.add(0, 0, ['mediump float']);
+    t.add(2, 1, ['vTex']);
+    if (t.type) {
+        t.add(4, 1, ['uRes', 'uCam']);
+        t.add(4, 4, ['uImg']);
+        t.add(5, 0, ['gl_FragColor = texture2D(uImg, vTex + (uRes * uCam))']);
+    } else {
+        t.add(3, 1, ['aTex', 'aVer']);
+        t.add(4, 1, ['uRes']);
+        t.add(5, 0, ['gl_Position = vec4((aVer), 1.0, 1.0)', 'vTex = aTex']);
+    }
+    return t.compile();
+};
+
 Shader.prototype.mesh = function () {
     var t = this;
     t.add(0, 0, ['mediump float']);
@@ -100,13 +116,13 @@ Mesh.prototype.setup = function () {
         p.meshes.push(this);
         gl.useProgram(p);
         
-        glbuf(gl.ARRAY_BUFFER, this.ver);
+        this.ver = glbuf(gl.ARRAY_BUFFER, this.ver);
         gl.enableVertexAttribArray(p['aVer']);
-        gl.vertexAttribPointer(p['aVer'], 2, gl.FLOAT, false, 0, 0);
+//         gl.vertexAttribPointer(p['aVer'], 2, gl.FLOAT, false, 0, 0);
 
-        glbuf(gl.ARRAY_BUFFER, this.tex);
+        this.tex = glbuf(gl.ARRAY_BUFFER, this.tex);
         gl.enableVertexAttribArray(p['aTex']);
-        gl.vertexAttribPointer(p['aTex'], 2, gl.FLOAT, false, 0, 0);
+//         gl.vertexAttribPointer(p['aTex'], 2, gl.FLOAT, false, 0, 0);
 
         gl.uniform1i(p['uImg'], 0);
     }
@@ -122,8 +138,8 @@ Mesh.prototype.control = function () {
     this.vel[0] += act[1] - act[0];
     this.vel[1] += act[2] - act[3];
     if (mou[3]) {
-        this.vel[0] -= Math.sin(this.ang * D2R) * 5;
-        this.vel[1] -= Math.cos(this.ang * D2R) * 5;
+        this.vel[0] += Math.sin(this.ang * D2R) * 5;
+        this.vel[1] += Math.cos(this.ang * D2R) * 5;
     }
 };
 
