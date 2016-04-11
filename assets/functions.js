@@ -143,6 +143,7 @@ function glbuf(type, data) {
 function connect(ip, port) {
     ws = new WebSocket('ws://' + ip + ':' + port);
     console.log('Connecting to ' + ip + ':' + port + '...');
+    ws.hascon = 'connecting';
     ws.onopen = function () {
         var sid = (Math.random() * 10000 << 0) + '';
         console.log('Connected');
@@ -163,6 +164,7 @@ function connect(ip, port) {
         enableInput();
         run();
         ws.connected = true;
+        window.hascon = ws.hascon;
     };
     ws.onmessage = function (a) {
         var d = a.data, s = d.split(' '), c = s.shift(), i, j, l = s.length, m;
@@ -199,6 +201,16 @@ function connect(ip, port) {
     ws.onclose = function () {
         ws.connected = false;
         console.log('Disconnected');
+    };
+    ws.onerror = function(err) {
+        if(!window.hascon){
+            console.log('Running server.');
+            window.open("run.php");
+            setTimeout(
+                function(){
+                    connect(ip, port);
+                }, 500, false);
+        }
     };
 }
 
