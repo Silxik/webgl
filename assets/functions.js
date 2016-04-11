@@ -159,7 +159,7 @@ function connect(ip, port) {
         ]);
         bg.avel = 0;
         bg.setup();
-        tex.push(drawBG(gl, "simplex", 1024, 1024, "#fff000", "#0000ff")); //background noise
+        tex.push(drawBG(gl, "perlin", 1024, 1024, "#ff0000", "#ffcc00")); //background noise
         bg.texUnits = [tex.length-1];
         enableInput();
         run();

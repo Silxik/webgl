@@ -308,7 +308,8 @@ function drawBG(gl,type,texW, texH, hex1, hex2){
             var perlinTex = textureFromPixelArray(b8);
             return perlinTex;
         }
-        drawNoise(UFX.noise.wrap2d([texW, texH], [10, 10]), 1);
+        var perlinTex = drawNoise(UFX.noise.wrap2d([texW, texH], [10, 10]), 1);
+        return perlinTex;
 
         // var texture = textureFromPixelArray(data);
         // return texture;
