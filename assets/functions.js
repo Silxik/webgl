@@ -261,7 +261,11 @@ function GetIP(){
         }else{
             var r = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/; 
             var ip = window.location.href.match(r)[0];
-            that.ip = win.prompt("Insert ip to join:", ip);
+            if(ip){
+                that.ip = ip;
+            }else{
+                that.ip = win.prompt("Insert ip to join:", "");
+            }
         }
         that.onready();
     };
