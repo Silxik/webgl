@@ -92,6 +92,24 @@ function enableInput() {
                 act[i] = d ? 1 : 0;
                 if (k == 37 && d) cam.foc = cam.foc == 0 ? meshes.length - 1 : cam.foc - 1;
                 if (k == 39 && d) cam.foc = cam.foc == meshes.length - 1 ? 0 : cam.foc + 1;
+                if (k == 32 && d) {
+                    if(Math.abs(meshes[0].vel[0])>0 || Math.abs(meshes[0].vel[1])>0){
+                        setTimeout(function(){
+                            if(meshes[0].vel[0]>0){
+                                meshes[0].vel[0] = meshes[0].vel[0]>1?meshes[0].vel[0]/=1.05:meshes[0].vel[0]=0;
+                            }
+                            if(meshes[0].vel[0]<0){
+                                meshes[0].vel[0] = meshes[0].vel[0]<-1?meshes[0].vel[0]/=1.05:meshes[0].vel[0]=0;
+                            }
+                            if(meshes[0].vel[1]>0){
+                                meshes[0].vel[1] = meshes[0].vel[1]>1?meshes[0].vel[1]/=1.05:meshes[0].vel[1]=0;
+                            }
+                            if(meshes[0].vel[1]<0){
+                                meshes[0].vel[1] = meshes[0].vel[1]<-1?meshes[0].vel[1]/=1.05:meshes[0].vel[1]=0;
+                            }
+                        }, 1);
+                    }
+                }
                 break;
             }
         }

@@ -1,5 +1,5 @@
 var doc = document, win = window, can, gl, pro = 2, ws, pls = [], rng = rnumgen(),
-    key = [65, 68, 87, 83, 37, 39], act = new Uint8Array(key.length), mou = [0, 0, 0],
+    key = [65, 68, 87, 83, 37, 39, 32], act = new Uint8Array(key.length), mou = [0, 0, 0],
     meshes = [], texts = [], img = 3, tex = [], cam = {pos: [0, 0], foc: 0, cur: [0, 0]},
     R2D = 180 / Math.PI, D2R = Math.PI / 180;
 
