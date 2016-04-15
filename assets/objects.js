@@ -31,7 +31,7 @@ Shader.prototype.bg = function () {
     if (t.type) {
         t.add(4, 1, ['uRes', 'uCam']);
         t.add(4, 4, ['uImg']);
-        t.add(5, 0, ['gl_FragColor = texture2D(uImg, vTex + (uRes * uCam))']);
+        t.add(5, 0, ['gl_FragColor = texture2D(uImg, vTex + (uRes * uCam * 0.5))']);
     } else {
         t.add(3, 1, ['aTex', 'aVer']);
         t.add(4, 1, ['uRes']);
@@ -98,6 +98,7 @@ function Mesh(color) {
 }
 
 Mesh.prototype.pro = [0];
+Mesh.prototype.type = 0;
 Mesh.prototype.texUnits = [0];
 Mesh.prototype.ver = new Float32Array([
     -100, -100, 100, -100, 100, 100,
@@ -135,12 +136,31 @@ Mesh.prototype.physics = function () {
 };
 
 Mesh.prototype.control = function () {
+    var ang = D2R * (meshes[0].ang - 90);
     this.vel[0] += act[1] - act[0];
     this.vel[1] += act[2] - act[3];
     if (mou[3]) {
         this.vel[0] += Math.sin(this.ang * D2R) * 5;
         this.vel[1] += Math.cos(this.ang * D2R) * 5;
     }
+    this.vel[0] = this.vel[0] - this.vel[0] * act[6] * 0.05;
+    this.vel[1] = this.vel[1] - this.vel[1] * act[6] * 0.05;
+    if (mou[1]) {
+        mou[1] += 1;
+        if (mou[1] >= 10) {
+            blt = new Mesh();
+            blt.pos = meshes[0].pos.slice(0);
+            blt.vel = [Math.cos(ang) * 300 + meshes[0].vel[0], -Math.sin(ang) * 300 + meshes[0].vel[1]];
+            blt.ver = new Float32Array([
+                -10.0, -10.0, 10.0, -10.0, 10.0, 10.0,
+                10.0, 10.0, -10.0, 10.0, -10.0, -10.0
+            ]);
+            blt.setup();
+            blt.type = 1;
+            mou[1] = 1;
+        }
+    }
+
 };
 
 function rnumgen(n) {
