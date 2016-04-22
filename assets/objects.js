@@ -92,7 +92,7 @@ function Mesh(color) {
     this.vel = [rnd() * 10, rnd() * 10];
     this.ang = 0;
     this.col = color || new Float32Array([1, 1, 1]);
-    this.avel = rnd();
+    this.avel = 0;
     this.tver = [];
     meshes.push(this);
 }

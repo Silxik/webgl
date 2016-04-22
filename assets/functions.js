@@ -44,7 +44,7 @@ function setupTextures() {
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
         // Send image data to graphics card
@@ -141,6 +141,48 @@ function glbuf(type, data) {
     return b
 }
 
+function textNode(str) {
+    var mesh = new Mesh(),
+        c = document.createElement('canvas'),
+        ctx = c.getContext('2d'), width, t;
+
+    ctx.font = "20px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "white";
+
+    width = ctx.measureText(str);
+
+    c.width = 64;
+    c.height = 32;
+
+    ctx.fillText(str, width / 2, 16);
+
+    mesh.pro = [1];
+    mesh.pos = [0, 0];
+    mesh.vel = [0, 0];
+    mesh.ver = new Float32Array([
+        -1.0, -1.0, 1.0, -1.0, 1.0, 1.0,
+        1.0, 1.0, -1.0, 1.0, -1.0, -1.0
+    ]);
+
+    mesh.setup();
+
+    t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    // Send image data to graphics card
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+
+    tex.push(t);
+    mesh.texUnits = [tex.length - 1];
+}
+
 function connect(ip, port) {
     ws = new WebSocket('ws://' + ip + ':' + port);
     console.log('Connecting to ' + ip + ':' + port + '...');
@@ -162,6 +204,7 @@ function connect(ip, port) {
         bg.setup();
         tex.push(drawBG(gl, "perlin", 1024, 1024, "#ff0000", "#ffcc00")); //background noise
         bg.texUnits = [tex.length-1];
+        var someStr = new textNode();
         enableInput();
         run();
         ws.connected = true;
