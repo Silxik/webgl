@@ -15,7 +15,10 @@ function getLocations(program, type) {
 }
 
 function setupPrograms() {
-    var i = pro, i2, p, sha = [new Shader(0).mesh(), new Shader(1).mesh(), new Shader(0).bg(), new Shader(1).bg()];
+    var i = pro, i2, p, sha = [
+        new Shader(0).text(), new Shader(1).text(),
+        new Shader(0).mesh(), new Shader(1).mesh(),
+        new Shader(0).bg(), new Shader(1).bg()];
     pro = [];
 
     while (--i >= 0) {
@@ -44,7 +47,7 @@ function setupTextures() {
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
         // Send image data to graphics card
@@ -151,7 +154,7 @@ function connect(ip, port) {
         pls.push(new Player(sid));
         ws.send('J ' + sid);
         var bg = new Mesh();
-        bg.pro = [1];
+        bg.pro = [2];
         bg.pos = [0, 0];
         bg.vel = [0, 0];
         bg.ver = new Float32Array([
@@ -162,6 +165,7 @@ function connect(ip, port) {
         bg.setup();
         tex.push(drawBG(gl, "perlin", 1024, 1024, "#ff0000", "#ffcc00")); //background noise
         bg.texUnits = [tex.length-1];
+        var someStr = new TextNode('Textnode test');
         enableInput();
         run();
         ws.connected = true;

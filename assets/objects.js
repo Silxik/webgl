@@ -40,6 +40,23 @@ Shader.prototype.bg = function () {
     return t.compile();
 };
 
+Shader.prototype.text = function () {
+    var t = this;
+    t.add(0, 0, ['mediump float']);
+    t.add(2, 1, ['vTex']);
+    if (t.type) {
+        t.add(4, 4, ['uImg']);
+        t.add(4, 5, ['uCol']);
+        t.add(5, 0, ['gl_FragColor = texture2D(uImg, vec2(vTex.x, -vTex.y)) * vec4(uCol, 1)']);
+    } else {
+        t.add(1, 2, ['PI = 3.14159265358979323846264', 'D2R = PI / 180.0']);
+        t.add(3, 1, ['aTex', 'aVer']);
+        t.add(4, 1, ['uRes', 'uPos']);
+        t.add(5, 0, ['gl_Position = vec4((aVer + uPos) * uRes, 1.0, 1.0)', 'vTex = aTex']);
+    }
+    return t.compile();
+};
+
 Shader.prototype.mesh = function () {
     var t = this;
     t.add(0, 0, ['mediump float']);
@@ -72,6 +89,60 @@ Shader.prototype.compile = function () {
 };
 
 /**
+ * Textnode constructor
+ * @constructor
+ */
+function TextNode(str) {
+    var mesh = new Mesh(),
+        c = document.createElement('canvas'),
+        ctx = c.getContext('2d'), width, t, w, h = 16, f = "24px Verdana",
+        n2 = [32, 64, 128, 256, 512, 1024], i = n2.length;
+
+    // Set font and measure text
+    ctx.font = f;
+    width = ctx.measureText(str).width;
+    while (--i >= 0) {
+        if (width <= n2[i]) w = n2[i] / 2;
+    }
+
+    c.width = w * 2;
+    c.height = h * 2;
+
+    //ctx.fillRect(0, 0, c.width, c.height);       // For debugging
+
+    // Changing canvas size has reset some properties
+    ctx.font = f;
+    ctx.fillStyle = "white";
+
+    ctx.fillText(str, 0, h + 4);
+
+    mesh.pro = [0];
+    mesh.pos = [0, 250];
+    mesh.vel = [0, 0];
+    mesh.ver = new Float32Array([
+        -w, -h, w, -h, w, h,
+        w, h, -w, h, -w, -h
+    ]);
+
+    mesh.setup();
+
+    t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    // Send image data to graphics card
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+
+    tex.push(t);
+    mesh.texUnits = [tex.length - 1];
+    meshes.push(mesh);
+}
+
+/**
  * Player constructor
  * @constructor
  */
@@ -97,7 +168,7 @@ function Mesh(color) {
     meshes.push(this);
 }
 
-Mesh.prototype.pro = [0];
+Mesh.prototype.pro = [1];
 Mesh.prototype.type = 0;
 Mesh.prototype.texUnits = [0];
 Mesh.prototype.ver = new Float32Array([
