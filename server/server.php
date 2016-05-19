@@ -36,7 +36,7 @@ function wsOnMessage($clientID, $message, $messageLength, $binary)
         $c->pos[0] = $message[1];
         $c->pos[1] = $message[2];
         $c->vel[0] = $message[3];
-        $c->vel[2] = $message[4];
+        $c->vel[1] = $message[4];
         // Let other clients know that new data is available
         foreach ($users as $userID => $data) {
             if ($userID != $clientID) {
@@ -46,11 +46,14 @@ function wsOnMessage($clientID, $message, $messageLength, $binary)
         $data = '';
         // Send updates back to the client
         foreach ($c->queue as $userID => $one) {
+            if ($one) {
             $u = $users[$userID];
             $data .= ' ' . $u->name . ' ' .
                 $u->ang . ' ' .
                 $u->pos[0] . ' ' . $u->pos[1] . ' ' .
                 $u->vel[0] . ' ' . $u->vel[1];
+                $c->queue[$userID] = 0;
+            }
         }
 
         wsSend($clientID, 'D' . $data);

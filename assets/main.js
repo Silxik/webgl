@@ -1,7 +1,7 @@
 var doc = document, win = window, can, gl, pro = 3, ws, pls = [], rng = rnumgen(),
     key = [65, 68, 87, 83, 37, 39, 32], act = new Uint8Array(key.length), mou = [0, 0, 0],
     meshes = [], texts = [], img = 3, tex = [], cam = {pos: [0, 0], foc: 0, cur: [0, 0]},
-    R2D = 180 / Math.PI, D2R = Math.PI / 180;
+    R2D = 180 / Math.PI, D2R = Math.PI / 180, count = 0;
 
 function loadedCheck(e) {
     e.target.loaded = 1;
@@ -36,7 +36,7 @@ function init() {
 function run() {
     var i, j, k, m, p;
     // Only render when document has focus
-    if (doc.hasFocus()) {
+    if (1) { //doc.hasFocus()) {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         i = meshes.length;
@@ -50,11 +50,11 @@ function run() {
             while (--i >= 0) {
                 meshes[i].physics();
             }
-            if (ws.connected) {
+            if (count >= 30 && ws.connected) {
                 ws.send('D ' + meshes[0].ang + ' ' +
                     meshes[0].pos[0] + ' ' + meshes[0].pos[1] + ' ' +
                     meshes[0].vel[0] + ' ' + meshes[0].vel[1]);
-
+                count = 0;
             }
 
             // Render programs
@@ -87,6 +87,7 @@ function run() {
             }
         }
     }
+    count++;
 
     // Loop the run function
     requestAnimationFrame(run, can);
