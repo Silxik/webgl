@@ -113,8 +113,9 @@ function TextNode(str) {
     // Changing canvas size has reset some properties
     ctx.font = f;
     ctx.fillStyle = "white";
-
-    ctx.fillText(str, 0, h + 4);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(str, w, h + 4);
 
     mesh.pro = [0];
     mesh.pos = [0, 250];
