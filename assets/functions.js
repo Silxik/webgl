@@ -144,7 +144,7 @@ function glbuf(type, data) {
     return b
 }
 
-function connect(ip, port) {
+function connect() {
     ws = new WebSocket('ws://' + ip + ':' + port);
     console.log('Connecting to ' + ip + ':' + port + '...');
     ws.hascon = 'connecting';
@@ -213,7 +213,7 @@ function connect(ip, port) {
             window.open("run.php");
             setTimeout(
                 function(){
-                    connect(ip, port);
+                    connect();
                 }, 2000, false);
         }
     };
@@ -248,30 +248,28 @@ function safeRemove(arr, ind) {
 }
 
 function GetIP(){
-    var rtc, pc, noop = function() {}, that = this, local;
-    this.onready = function() {};
-    this.ip = null;
-    if (window.location.href.indexOf('localhost') >= 0) {
-        local = true;
-    }
+    var rtc, pc, noop = function () {
+    }, match;
+
     rtc = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection;   //compatibility for firefox and chrome
     pc = new rtc({iceServers:[]});
     pc.createDataChannel("");    //create a bogus data channel
     pc.createOffer(pc.setLocalDescription.bind(pc), noop);    // create offer and set local description
     pc.onicecandidate = function(ice){  //listen for candidate events
-        if(!ice || !ice.candidate || !ice.candidate.candidate)  return;
-        pc.onicecandidate = noop;
-        if (local==true){
-            that.ip = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/.exec(ice.candidate.candidate)[1];
-        }else{
-            var r = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/; 
-            var ip = window.location.href.match(r)[0];
-            if(ip){
-                that.ip = ip;
+        if (!(!ice || !ice.candidate || !ice.candidate.candidate)) {
+            pc.onicecandidate = noop;
+            if (window.location.href.indexOf('localhost') >= 0) {
+                ip = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/.exec(ice.candidate.candidate)[1];
             }else{
-                that.ip = win.prompt("Insert ip to join:", "");
+                var r = /\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/;
+                match = window.location.href.match(r)[0];
+                if (match) {
+                    ip = match;
+                } else {
+                    ip = win.prompt("Insert ip to join:", "");
+                }
             }
         }
-        that.onready();
+        connect();
     };
 }

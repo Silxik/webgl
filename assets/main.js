@@ -1,7 +1,7 @@
 var doc = document, win = window, can, gl, pro = 3, ws, pls = [], rng = rnumgen(),
     key = [65, 68, 87, 83, 37, 39, 32], act = new Uint8Array(key.length), mou = [0, 0, 0],
     meshes = [], texts = [], img = 3, tex = [], cam = {pos: [0, 0], foc: 0, cur: [0, 0]},
-    R2D = 180 / Math.PI, D2R = Math.PI / 180, count = 0;
+    R2D = 180 / Math.PI, D2R = Math.PI / 180, count = 0, ip = 'localhost', port = 9300;
 
 function loadedCheck(e) {
     e.target.loaded = 1;
@@ -15,11 +15,7 @@ function loadedCheck(e) {
 
     setupTextures();
 
-    var ip = new GetIP();
-    ip.onready = function() {
-        connect(this.ip, 9300);
-    }
-
+    GetIP();
 }
 
 function init() {
