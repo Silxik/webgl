@@ -29,13 +29,12 @@ Shader.prototype.bg = function () {
     t.add(0, 0, ['mediump float']);
     t.add(2, 1, ['vTex']);
     if (t.type) {
-        t.add(4, 1, ['uRes', 'uCam']);
         t.add(4, 4, ['uImg']);
-        t.add(5, 0, ['gl_FragColor = texture2D(uImg, vTex + (uRes * uCam * 0.5))']);
+        t.add(5, 0, ['gl_FragColor = texture2D(uImg, vTex)']);
     } else {
         t.add(3, 1, ['aTex', 'aVer']);
-        t.add(4, 1, ['uRes']);
-        t.add(5, 0, ['gl_Position = vec4((aVer), 1.0, 1.0)', 'vTex = aTex']);
+        t.add(4, 1, ['uRes', 'uCam']);
+        t.add(5, 0, ['gl_Position = vec4(aVer, 1.0, 1.0)', 'vTex = aTex / uRes * 0.005 + uCam * 0.5 * uRes']);
     }
     return t.compile();
 };
