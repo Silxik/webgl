@@ -165,7 +165,7 @@ function connect() {
         bg.setup();
         tex.push(drawBG(gl, "perlin", 1024, 1024, "#ff0000", "#ffcc00")); //background noise
         bg.texUnits = [tex.length-1];
-        var someStr = new TextNode('Textnode test');
+        var someStr = new TextNode('Textnode test', ['l','b']);
         enableInput();
         run();
         ws.connected = true;

@@ -91,7 +91,7 @@ Shader.prototype.compile = function () {
  * Textnode constructor
  * @constructor
  */
-function TextNode(str) {
+function TextNode(str, snap) {
     var mesh = new Mesh(),
         c = document.createElement('canvas'),
         ctx = c.getContext('2d'), width, t, w, h = 16, f = "24px Verdana",
@@ -103,7 +103,6 @@ function TextNode(str) {
     while (--i >= 0) {
         if (width <= n2[i]) w = n2[i] / 2;
     }
-
     c.width = w * 2;
     c.height = h * 2;
 
@@ -117,7 +116,48 @@ function TextNode(str) {
     ctx.fillText(str, w, h + 4);
 
     mesh.pro = [0];
-    mesh.pos = [0, 250];
+    function pos(){
+        var l,r,t,b;
+        function calcPos(){
+            var sw = (window.innerWidth / 2) - (width / 2),
+                sh = (window.innerHeight / 2);
+            l = -sw;
+            r = sw;
+            t = sh - (h / 2);
+            b = -sh + h;
+        }
+        calcPos();
+        switch(snap[0]) {
+            case 'l':
+                mesh.pos[0] = l;
+                break;
+            case 'c':
+                mesh.pos[0] = 0;
+                break;
+            case 'r':
+                mesh.pos[0] = r;
+                break;
+            default:
+                mesh.pos[0] = 0;
+        }
+        switch(snap[1]) {
+            case 't':
+                mesh.pos[1] = t;
+                break;
+            case 'c':
+                mesh.pos[1] = 0;
+                break;
+            case 'b':
+                mesh.pos[1] = b;
+                break;
+            default:
+                mesh.pos[1] = 0;
+        }
+    }
+    pos();
+    window.addEventListener('resize', function(event){
+        pos();
+    });
     mesh.vel = [0, 0];
     mesh.ver = new Float32Array([
         -w, -h, w, -h, w, h,
